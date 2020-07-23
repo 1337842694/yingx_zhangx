@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhangxin.dao.AdminDao">
+
+    <resultMap id="queryMap" type="Admin">
+        <id column="aAdminId" property="id"/>
+        <result column="aUsername" property="username"/>
+        <result column="aPassword" property="password"/>
+        <result column="aSalt" property="salt"/>
+        <collection property="roles" ofType="Role">
+            <id column="rRoleId" property="id"/>
+            <result column="rRoleName" property="roleName"/>
+            <collection property="authorities" ofType="Authority">
+                <id column="auAuthorityId" property="id"/>
+                <result column="auAuthorityName" property="name"/>
+            </collection>
+        </collection>
+    </resultMap>
+
+    <select id="queryAllMessage" resultMap="queryMap">
+        select
+            a.admin_id aAdminId,a.username aUsername,a.password aPassword,a.salt aSalt,
+            r.role_id rRoleId,r.role_name rRoleName,
+            au.authority_id auAuthorityId,au.authority_name auAuthorityName
+        from s_admin a
+        left join s_admin_role ar on a.admin_id=ar.admin_id
+        left join s_role r on ar.role_id=r.role_id
+        left join s_role_authority ra on r.role_id=ra.role_id
+        left join s_authority au on ra.authority_id=au.authority_id
+        where username=#{username}
+    </select>
+
+    <sql id="querySql">
+        admin_id id,username,password,salt
+    </sql>
+    <select id="queryByUserName" resultType="Admin">
+        select
+        <include refid="querySql"/>
+        from s_admin where username=#{username}
+    </select>
+
+</mapper>
